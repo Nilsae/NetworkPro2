@@ -1,5 +1,6 @@
 # #!/usr/bin/python3
 # from socket import *
+import json
 import time
 # sockobj = socket(AF_INET, SOCK_STREAM)
 # sockobj.bind(('', 5000))
@@ -67,5 +68,8 @@ else:
     length = len(capture)
     # return capture, length
     print('number of captured packets =',length)
-    for packet in capture:
-        
+    f = open('file.json', )
+    data = json.load(f)
+    num_retransmits = data['intervals'][0]['sum']['retransmits']
+    print("number of tcp retransmittions : ",num_retransmits)
+    # for packet in capture:
