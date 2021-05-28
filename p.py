@@ -2,6 +2,7 @@
 # from socket import *
 import json
 import time
+import matplotlib as plt
 # sockobj = socket(AF_INET, SOCK_STREAM)
 # sockobj.bind(('', 5000))
 # sockobj.listen(10)
@@ -71,5 +72,7 @@ else:
     f = open('file.json', )
     data = json.load(f)
     num_retransmits = data['intervals'][0]['sum']['retransmits']
+    s_throughput = data['intervals'][0]['sum']['bits_per_second']
     print("number of tcp retransmittions : ",num_retransmits)
+    print("mean sender throughput : ", s_throughput)
     # for packet in capture:
