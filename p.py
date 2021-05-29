@@ -26,38 +26,55 @@ else:
     )
     capture_all.sniff(timeout=timeout)
     num_of_packets = len(capture_all)
-    # return capture, length
     print('number of captured packets =',num_of_packets)
-    f = open('file.json', )
-    data = json.load(f)
-    num_retransmits = data['intervals'][0]['sum']['retransmits']
-    sum_throughput=0
-    time_list = []
-    rate_list = []
+    f_sender = open('sender.json', )
+    data = json.load(f_sender)
+
+    sum_throughput_sender=0
+    time_list_sender = []
+    rate_list_sender = []
     for i in range(len(data['intervals'])):
         s_throughput = data['intervals'][i]['sum']['bits_per_second']
-        sum_throughput=sum_throughput+s_throughput
-        rate_list.append(s_throughput)
-        time_list.append( data['intervals'][i]['sum']['end'])
-
-    # ret_capture = pyshark.LiveCapture(interface='lo', display_filter='tcp.analysis.retransmission')
-    # ret_capture.sniff(timeout=50)
-    # for packet in ret_capture.sniff_continuously(packet_count=1):
-    #     print(packet.type)
-    capture = pyshark.FileCapture('test.pcap', display_filter='tcp.analysis.retransmission')
+        sum_throughput_sender=sum_throughput_sender+s_throughput
+        rate_list_sender.append(s_throughput)
+        time_list_sender.append( data['intervals'][i]['sum']['end'])
+    capture = pyshark.FileCapture('receiver.txt', display_filter='tcp.analysis.retransmission')
     counter = 0
     for packet in capture:
         counter += 1
     num_retransmits= counter
-    # num_retransmits_valid = len(ret_capture)
 
-    mean_throughput = sum_throughput/len(data['intervals'])
+    mean_throughput_sender = sum_throughput_sender/len(data['intervals'])
     print("number of tcp retransmittions : ",num_retransmits)
-    print("mean sender throughput : ", mean_throughput)
-    # for packet in capture:
+    print("mean sender throughput : ", mean_throughput_sender)
     plt.figure()
-    plt.plot(time_list, rate_list)
+    plt.plot(time_list_sender, rate_list_sender)
     plt.xlabel('Time(sec)')
     plt.ylabel('throughput(bits/sec)')
     plt.grid()
     plt.show()
+    #
+    sum_throughput_receiver=0
+    time_list_receiver = []
+    rate_list_receiver = []
+    with open('receiver.txt', 'r') as f_receiver:  # iperf-log.txt is the iperf log file name
+        row_data = f_receiver.readlines()  # Read each line of the iperf log file into a list
+        for line in row_data:  # Use regular expressions for matching, and the matching content can be changed according to the actual situation
+            time = re.findall(r"-(.*) sec", line)
+            rate = re.findall(r"MBytes (.*) Gbits", line)
+            if (len(time) > 0):
+                time_list_receiver.append(float(time[0]))
+                # rate_list_receiver.append(float(rate[0]))
+                rate_list_receiver.append(5.00)
+    # for i in range(len(data['intervals'])):
+    #     r_throughput = data['intervals'][i]['sum']['bits_per_second']
+    #     sum_throughput_receiver=sum_throughput_receiver+r_throughput
+    #     rate_list_receiver.append(r_throughput)
+    #     time_list_receiver.append( data['intervals'][i]['sum']['end'])
+    # plt.figure()
+    # plt.plot(time_list_receiver, rate_list_receiver)
+    # plt.xlabel('Time(sec)')
+    # plt.ylabel('throughput(Mbits/sec)')
+    # plt.grid()
+    # plt.legend(["Sender", "Receiver"])
+    # plt.show()
